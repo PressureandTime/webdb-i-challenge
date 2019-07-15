@@ -28,9 +28,27 @@ function deleteAccountById(id) {
     .del();
 }
 
+function updateAccountById(id, { name, budget }) {
+  return db('accounts')
+    .where({ id })
+    .update({ name, budget });
+}
+
 server.get('/accounts', async (req, res) => {
   const accounts = await getAllAccounts();
   res.json(accounts);
+});
+
+server.get('/accounts/:id', async (req, res) => {
+  try {
+    const account = await getAccountById(req.params.id);
+    res.status(200).json(account);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Error retrieving the account with that ID'
+    });
+  }
 });
 
 server.post('/accounts', async (req, res, next) => {
@@ -59,7 +77,22 @@ server.delete('/accounts/:id', async (req, res) => {
   }
 });
 
-
+server.put('/accounts/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const updatedAccount = await updateAccountById(id, req.body);
+    if (updatedAccount) {
+      res.status(200).json({ message: 'Update was successful' });
+    } else {
+      res.status(404).json({ message: 'The account could not be found' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Error updating the account'
+    });
+  }
+});
 
 server.use(function errorHandler(err, req, res, next) {
   console.error('ERROR:', err);
