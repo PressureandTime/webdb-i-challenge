@@ -22,6 +22,12 @@ function createNewAccount({ name, budget }) {
   return db('accounts').insert({ name, budget });
 }
 
+function deleteAccountById(id) {
+  return db('accounts')
+    .where({ id })
+    .del();
+}
+
 server.get('/accounts', async (req, res) => {
   const accounts = await getAllAccounts();
   res.json(accounts);
@@ -36,6 +42,23 @@ server.post('/accounts', async (req, res, next) => {
     next(new Error("Couldn't create account"));
   }
 });
+
+server.delete('/accounts/:id', async (req, res) => {
+  try {
+    const count = await deleteAccountById(req.params.id);
+    if (count > 0) {
+      res.status(200).json({ message: 'The account has been deleted' });
+    } else {
+      res.status(404).json({ message: 'The account could not be found' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Error removing the account'
+    });
+  }
+});
+
 
 
 server.use(function errorHandler(err, req, res, next) {
