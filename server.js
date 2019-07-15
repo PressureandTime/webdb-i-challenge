@@ -7,7 +7,7 @@ const server = express();
 server.use(express.json());
 
 server.get('/', (req, res, next) => {
-  res.json('success!');
+  res.json('WELCOME!');
 });
 
 function getAllAccounts() {
